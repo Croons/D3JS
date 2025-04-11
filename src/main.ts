@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { ModelLoader } from './utils/modelLoader';
 
 // Init Three.js components
 class App {
@@ -7,6 +8,8 @@ class App {
   private camera: THREE.PerspectiveCamera;
   private renderer: THREE.WebGLRenderer;
   private controls: OrbitControls;
+  private modelLoader: ModelLoader;
+  private loadedModels: THREE.Group[] = [];
 
   constructor() {
     // Scene creation
@@ -46,11 +49,33 @@ class App {
     const gridHelper = new THREE.GridHelper(15, 15);
     this.scene.add(gridHelper);
 
+    // Model loader
+    this.modelLoader = new ModelLoader();
+    this.loadModels();
+
     // Window resizer!
     window.addEventListener('resize', this.onWindowResize.bind(this));
 
     // Start animation loop
     this.animate();
+  }
+
+  private async loadModelAtPosition(modelPath: string, position: THREE.Vector3): Promise<THREE.Group | null> {
+    try {
+      const model = await this.modelLoader.loadModel(modelPath);
+      model.scene.position.copy(position);
+      this.scene.add(model.scene);
+      this.loadedModels.push(model.scene);
+      return model.scene;
+    } catch (error) {
+      console.error(`Failed to load model: ${modelPath}`, error);
+      return null;
+    }
+  }
+
+  private async loadModels(): Promise<void> {
+    // Load models here
+    await this.loadModelAtPosition('models/bike.glb', new THREE.Vector3(0, 0.6, 0));
   }
 
   private onWindowResize(): void {
