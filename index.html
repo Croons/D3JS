@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Three.js Interview Demo</title>
+  <title>Oscar Boutani | Demo</title>
   <style>
     body {
       margin: 0;
@@ -16,7 +16,31 @@
   </style>
 </head>
 <body>
-  <div id="app"></div>
-  <script type="module" src="/src/main.ts"></script>
+<div id="app"></div>
+<div id="ui-container">
+
+  <div id="controls-panel">
+    <h3>Controls</h3>
+    <div class="control-item">
+      <span class="key">Right Click</span>
+      <span class="action">Select Model</span>
+    </div>
+    <div class="control-item">
+      <span class="key">Drag</span>
+      <span class="action">Rotate Camera</span>
+    </div>
+    <div class="control-item">
+      <span class="key">Scroll</span>
+      <span class="action">Zoom</span>
+    </div>
+  </div>
+
+  <div id="selection-panel">
+    <h3>Selected Model: <span id="model-name">None</span></h3>
+    <!-- select UI here laterr -->
+  </div>
+</div>
+
+<script type="module" src="/src/main.ts"></script>
 </body>
 </html>

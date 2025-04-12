@@ -1,6 +1,8 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { ModelLoader } from './utils/modelLoader';
+import { SelectionManager } from './utils/selectionManager';
+import '../ui.css';
 
 // Init Three.js components
 class App {
@@ -9,6 +11,7 @@ class App {
   private renderer: THREE.WebGLRenderer;
   private controls: OrbitControls;
   private modelLoader: ModelLoader;
+  private selectionManager: SelectionManager;
   private loadedModels: THREE.Group[] = [];
 
   constructor() {
@@ -49,8 +52,13 @@ class App {
     const gridHelper = new THREE.GridHelper(15, 15);
     this.scene.add(gridHelper);
 
-    // Model loader
     this.modelLoader = new ModelLoader();
+    
+    this.selectionManager = new SelectionManager(
+      this.scene,
+      this.camera
+    );
+    
     this.loadModels();
 
     // Window resizer!
@@ -60,12 +68,25 @@ class App {
     this.animate();
   }
 
-  private async loadModelAtPosition(modelPath: string, position: THREE.Vector3): Promise<THREE.Group | null> {
+  private async loadModelAtPosition(modelPath: string, position: THREE.Vector3, name: string): Promise<THREE.Group | null> {
     try {
       const model = await this.modelLoader.loadModel(modelPath);
+      
+      // Set the model name for easier identification
+      model.scene.name = name;
+      
+      // Position the model
       model.scene.position.copy(position);
+      
+      // Add to scene
       this.scene.add(model.scene);
+      
+      // Store for reference
       this.loadedModels.push(model.scene);
+      
+      // Add to selection manager
+      this.selectionManager.addSelectableObject(model.scene);
+      
       return model.scene;
     } catch (error) {
       console.error(`Failed to load model: ${modelPath}`, error);
@@ -74,8 +95,12 @@ class App {
   }
 
   private async loadModels(): Promise<void> {
-    // Load models here
-    await this.loadModelAtPosition('models/bike.glb', new THREE.Vector3(0, 0.6, 0));
+    // Load models
+    await this.loadModelAtPosition('models/bike.glb', new THREE.Vector3(0, 0.6, 0), 'Bike');
+    
+    // Temp models for testing (remove me later)
+    await this.loadModelAtPosition('models/bike.glb', new THREE.Vector3(-5, 0.6, 0), 'Left Bike');
+    await this.loadModelAtPosition('models/bike.glb', new THREE.Vector3(5, 0.6, 0), 'Right Bike');
   }
 
   private onWindowResize(): void {
@@ -86,8 +111,9 @@ class App {
 
   private animate(): void {
     requestAnimationFrame(this.animate.bind(this));
-
     this.controls.update();
+    //Update for bounding box
+    this.selectionManager.update();
     this.renderer.render(this.scene, this.camera);
   }
 }
@@ -95,5 +121,5 @@ class App {
 // Initialize when DOM is ready
 window.addEventListener('DOMContentLoaded', () => {
   new App();
-  console.log('scene initialized');
+  console.log('Scene initialized');
 });
