@@ -1,24 +1,18 @@
 import { defineConfig } from 'vite';
 
 export default defineConfig({
-  base: '/D3JS/', 
+  base: '/D3JS/',
   plugins: [],
   resolve: {
     alias: {
       '@': '/src',
     },
   },
-  server: {
-    open: true
-  },
   build: {
     outDir: 'dist',
     sourcemap: true,
-    rollupOptions: {
-      external: ['crypto'],
-    }
   },
-  define: {
-    global: 'globalThis',
+  optimizeDeps: {
+    include: ['three']
   }
 });

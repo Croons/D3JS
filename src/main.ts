@@ -102,9 +102,9 @@ class App {
 
   private async loadModels(): Promise<void> {
     // Load models
-    await this.loadModelAtPosition('models/bike.glb', new THREE.Vector3(0, 0.57, 0), 'Bike');
-    await this.loadModelAtPosition('models/head.glb', new THREE.Vector3(-3, 5.22, -4.5), 'Left Bike');
-    await this.loadModelAtPosition('models/table.glb', new THREE.Vector3(3, 0, 0), 'Right Bike');
+    await this.loadModelAtPosition('./models/bike.glb', new THREE.Vector3(0, 0.57, 0), 'Bike');
+    await this.loadModelAtPosition('./models/head.glb', new THREE.Vector3(-3, 5.22, -4.5), 'Left Bike');
+    await this.loadModelAtPosition('./models/table.glb', new THREE.Vector3(3, 0, 0), 'Right Bike');
     this.gravityManager.scanScene(this.scene);
   }
 
