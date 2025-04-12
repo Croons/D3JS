@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { ModelExtender } from './modelExtender';
 
 export class SelectionManager {
   private scene: THREE.Scene;
@@ -10,6 +11,10 @@ export class SelectionManager {
   private selectedObject: THREE.Object3D | null = null;
   private boundingBox: THREE.BoxHelper | null = null;
   
+  private modelExtender: ModelExtender;
+  private currentExtensionFactor: number = 0;
+  private isAnimating: boolean = false;
+
   constructor(
     scene: THREE.Scene, 
     camera: THREE.PerspectiveCamera
@@ -20,6 +25,8 @@ export class SelectionManager {
     // Init
     this.raycaster = new THREE.Raycaster();
     this.mouse = new THREE.Vector2();
+    this.modelExtender = new ModelExtender();
+
     
     this.addEventListeners();
     this.initSelectionUI();
@@ -88,6 +95,12 @@ export class SelectionManager {
       this.boundingBox = null;
     }
     
+    // Reset the model to its original state
+    if (this.selectedObject) {
+      this.modelExtender.resetModel(this.selectedObject);
+      this.currentExtensionFactor = 0;
+    }
+    
     this.selectedObject = null;
     
     // Hide the selection panel
@@ -99,16 +112,65 @@ export class SelectionManager {
   
   private initSelectionUI(): void {
     console.log('selection ui started');
+        // Set up the extension slider
+    const extensionSlider = document.getElementById('x-extension-slider') as HTMLInputElement;
+    const extensionValue = document.getElementById('extension-value');
+    
+    if (extensionSlider && extensionValue) {
+      extensionSlider.addEventListener('input', (event) => {
+        const value = parseFloat((event.target as HTMLInputElement).value);
+
+        if (extensionValue) {
+          extensionValue.textContent = value.toFixed(2);
+        }
+        
+        // Apply the extension to the selected model
+        this.applyExtension(value);
+      });
+    }
   }
   
-  // Update the selection UI when an object is selected
+  // Apply extension to selected model
+  private async applyExtension(factor: number): Promise<void> {
+    if (!this.selectedObject || this.isAnimating) return;
+    
+    // Skip if too small
+    if (Math.abs(factor - this.currentExtensionFactor) < 0.01) return;
+    
+    this.isAnimating = true;
+    
+    await this.modelExtender.extendModel(
+      this.selectedObject,
+      factor,
+      true,
+      300
+    );
+    
+    this.currentExtensionFactor = factor;
+    this.isAnimating = false;
+  }
+
+  // Update UI when object is selected
   private updateSelectionUI(): void {
     const selectionPanel = document.getElementById('selection-panel');
     const modelNameSpan = document.getElementById('model-name');
+    const extensionSlider = document.getElementById('x-extension-slider') as HTMLInputElement;
+    const extensionValue = document.getElementById('extension-value');
     
     if (selectionPanel && modelNameSpan && this.selectedObject) {
+      // Show panel
       selectionPanel.style.display = 'block';
       modelNameSpan.textContent = this.selectedObject.name || 'Unnamed Model';
+      
+      // Reset
+      if (extensionSlider && extensionValue) {
+        extensionSlider.value = '0';
+        extensionValue.textContent = '0';
+        this.currentExtensionFactor = 0;
+        
+        // Reset to original model
+        this.modelExtender.resetModel(this.selectedObject);
+      }
     }
   }
   
