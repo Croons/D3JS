@@ -7,6 +7,8 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write  # This is important!
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -27,3 +29,4 @@ jobs:
         with:
           folder: dist
           branch: gh-pages
+          token: ${{ secrets.GITHUB_TOKEN }}
