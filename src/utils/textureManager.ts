@@ -11,9 +11,9 @@ export class TextureManager {
   private loadedTextures: Map<string, THREE.Texture> = new Map();
   private availableTextures: TextureInfo[] = [
     // Texture path here
-    { name: 'Red', path: '/textures/red_brick.jpg' },
-    { name: 'Green', path: '/textures/green_fabric.jpg' },
-    { name: 'Blue', path: '/textures/blue_metal.jpg' },
+    { name: 'Red', path: 'textures/red_brick.jpg' },
+    { name: 'Green', path: 'textures/green_fabric.jpg' },
+    { name: 'Blue', path: 'textures/blue_metal.jpg' },
 
   ];
   
