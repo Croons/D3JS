@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite';
 
 export default defineConfig({
-  base: '/D3JS/',
+  base: '/D3JS/', 
   plugins: [],
   resolve: {
     alias: {
@@ -14,5 +14,11 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     sourcemap: true,
+    rollupOptions: {
+      external: ['crypto'],
+    }
+  },
+  define: {
+    global: 'globalThis',
   }
 });

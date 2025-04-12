@@ -1,3 +1,4 @@
+import './crypto-polyfill.js';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { ModelLoader } from './utils/modelLoader';
