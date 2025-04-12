@@ -21,6 +21,8 @@ export class SelectionManager {
   
   // Map to store texture paths for each model
   private modelTextures: Map<THREE.Object3D, string> = new Map();
+  // Map to store extension factors for each model
+  private modelExtensionFactors: Map<THREE.Object3D, number> = new Map();
 
   constructor(
     scene: THREE.Scene, 
@@ -82,14 +84,14 @@ export class SelectionManager {
   }
   
   private selectObject(object: THREE.Object3D): void {
-    // Reset extension on previous object if any
-    if (this.selectedObject) {
-      this.modelExtender.resetModel(this.selectedObject);
-      
-      // Store current texture before changing selection
-      if (this.currentTexturePath) {
-        this.modelTextures.set(this.selectedObject, this.currentTexturePath);
-      }
+    // Save the current extension factor before changing selection
+    if (this.selectedObject && this.currentExtensionFactor !== 0) {
+      this.modelExtensionFactors.set(this.selectedObject, this.currentExtensionFactor);
+    }
+    
+    // Store current texture before changing selection
+    if (this.selectedObject && this.currentTexturePath) {
+      this.modelTextures.set(this.selectedObject, this.currentTexturePath);
     }
     
     // Clear the bounding box
@@ -106,8 +108,8 @@ export class SelectionManager {
     this.boundingBox = new THREE.BoxHelper(object, 0xffff00);
     this.scene.add(this.boundingBox);
     
-    // Reset extension factor for new selection
-    this.currentExtensionFactor = 0;
+    // Get stored extension factor or default to 0
+    this.currentExtensionFactor = this.modelExtensionFactors.get(object) || 0;
     
     // Check if this object has a previously applied texture
     this.currentTexturePath = this.modelTextures.get(object) || null;
@@ -116,24 +118,26 @@ export class SelectionManager {
     this.updateSelectionUI();
   }
   
-  // Clear only the current selection, not the materials
+  // Clear only the current selection, not the materials or extensions
   private clearSelection(): void {
     if (this.boundingBox) {
       this.scene.remove(this.boundingBox);
       this.boundingBox = null;
     }
     
-    // Reset the extension factor
-    if (this.selectedObject) {
-      this.modelExtender.resetModel(this.selectedObject);
-      
-      if (this.currentTexturePath) {
-        this.modelTextures.set(this.selectedObject, this.currentTexturePath);
-      }
+    // Save the current extension factor
+    if (this.selectedObject && this.currentExtensionFactor !== 0) {
+      this.modelExtensionFactors.set(this.selectedObject, this.currentExtensionFactor);
+    }
+    
+    // Save current texture
+    if (this.selectedObject && this.currentTexturePath) {
+      this.modelTextures.set(this.selectedObject, this.currentTexturePath);
     }
     
     this.selectedObject = null;
     this.currentTexturePath = null;
+    this.currentExtensionFactor = 0;
     
     // Hide the selection panel
     const selectionPanel = document.getElementById('selection-panel');
@@ -306,6 +310,10 @@ export class SelectionManager {
       );
       
       this.currentExtensionFactor = factor;
+      
+      // Store the extension factor for this model
+      this.modelExtensionFactors.set(this.selectedObject, factor);
+      
       console.log('Extension animation completed');
     } catch (error) {
       console.error('Error during extension:', error);
@@ -326,11 +334,15 @@ export class SelectionManager {
       selectionPanel.style.display = 'block';
       modelNameSpan.textContent = this.selectedObject.name || 'Unnamed Model';
       
-      // Reset extension controls
+      // Set extension controls to stored value
       if (extensionSlider && extensionValue) {
-        extensionSlider.value = '0';
-        extensionValue.textContent = '0';
-        this.currentExtensionFactor = 0;
+        extensionSlider.value = this.currentExtensionFactor.toString();
+        extensionValue.textContent = this.currentExtensionFactor.toFixed(2);
+        
+        // Apply the saved extension if not zero
+        if (this.currentExtensionFactor > 0) {
+          this.applyExtension(this.currentExtensionFactor);
+        }
       }
       
       // Match texture button with the selected object
