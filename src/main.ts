@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { ModelLoader } from './utils/modelLoader';
 import { SelectionManager } from './utils/selectionManager';
+import { GravityManager } from './utils/gravityManager';
 import '../ui.css';
 
 // Init Three.js components
@@ -13,11 +14,15 @@ class App {
   private modelLoader: ModelLoader;
   private selectionManager: SelectionManager;
   private loadedModels: THREE.Group[] = [];
+  private gravityManager: GravityManager;
+
 
   constructor() {
     // Scene creation
     this.scene = new THREE.Scene();
     this.scene.background = new THREE.Color(0x282c34);
+    this.gravityManager = new GravityManager();
+
 
     // Camera setup
     this.camera = new THREE.PerspectiveCamera(
@@ -101,6 +106,7 @@ class App {
     // Temp models for testing (remove me later)
     await this.loadModelAtPosition('models/bike.glb', new THREE.Vector3(-5, 0.6, 0), 'Left Bike');
     await this.loadModelAtPosition('models/bike.glb', new THREE.Vector3(5, 0.6, 0), 'Right Bike');
+    this.gravityManager.scanScene(this.scene);
   }
 
   private onWindowResize(): void {
@@ -114,6 +120,8 @@ class App {
     this.controls.update();
     //Update for bounding box
     this.selectionManager.update();
+    this.gravityManager.update();
+    // Render the scene
     this.renderer.render(this.scene, this.camera);
   }
 }
