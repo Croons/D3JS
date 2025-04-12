@@ -123,11 +123,10 @@ export class SelectionManager {
       this.boundingBox = null;
     }
     
-    // Reset only geometry extension, not materials
+    // Reset the extension factor
     if (this.selectedObject) {
       this.modelExtender.resetModel(this.selectedObject);
       
-      // Remember texture for this object before deselecting
       if (this.currentTexturePath) {
         this.modelTextures.set(this.selectedObject, this.currentTexturePath);
       }
@@ -144,51 +143,54 @@ export class SelectionManager {
   }
   
   private initSelectionUI(): void {
-    console.log('selection ui started');
-        
-    // Set up the extension slider - IMPORTANT event binding
-    const setupExtensionSlider = () => {
-    const extensionSlider = document.getElementById('x-extension-slider') as HTMLInputElement;
-    const extensionValue = document.getElementById('extension-value');
+  console.log('Initializing selection UI');
+    
+  // Setup the extension slider
+  const setupExtensionSlider = () => {
+  const extensionSlider = document.getElementById('x-extension-slider') as HTMLInputElement;
+  const extensionValue = document.getElementById('extension-value');
       
-      if (extensionSlider && extensionValue) {
+    if (extensionSlider && extensionValue) {
+      console.log('Found extension slider element');
         
-        // Make sure we're not double-binding the event
-        extensionSlider.onchange = null;
-        extensionSlider.oninput = null;
+      extensionSlider.onchange = null;
+      extensionSlider.oninput = null;
+      
+      // Add the event listener
+      extensionSlider.addEventListener('input', async (event) => {
+        if (!event.target) return;
         
-        // Add the event listener
-        extensionSlider.oninput = (event) => {
-          const value = parseFloat((event.target as HTMLInputElement).value);
-          console.log(`Slider value changed: ${value}`);
-          
-          if (extensionValue) {
-            extensionValue.textContent = value.toFixed(2);
-          }
-          
-          // Apply the extension to the selected model
-          this.applyExtension(value);
-        };
+        const value = parseFloat((event.target as HTMLInputElement).value);
+        console.log(`Slider value changed: ${value}`);
         
-      } else {
-        console.warn('Extension slider not found!');
-      }
-    };
-    
-    // Set up texture selector
-    this.setupTextureSelector();
-    
-    // Make sure slider is set up properly after DOM is loaded
-    if (document.readyState === 'complete') {
-      setupExtensionSlider();
+        if (extensionValue) {
+          extensionValue.textContent = value.toFixed(2);
+        }
+        
+        // Apply the extension to the selected model
+        await this.applyExtension(value);
+      });
+      
+      console.log('Extension slider event binding complete');
     } else {
-      window.addEventListener('DOMContentLoaded', setupExtensionSlider);
+      console.warn('Extension slider not found in DOM!');
+      
+      // Try again if not found
+      setTimeout(setupExtensionSlider, 100);
     }
-  }
+  };
   
-  /**
-   * Set up the texture selector UI
-   */
+  this.setupTextureSelector();
+  
+  // Slider setup on DOMContentLoaded
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setupExtensionSlider);
+  } else {
+    setupExtensionSlider();
+  }
+}
+  
+    // Selector ui
   private setupTextureSelector(): void {
     const textureContainer = document.getElementById('texture-selector');
     if (!textureContainer) {
@@ -255,9 +257,7 @@ export class SelectionManager {
     buttonContainer.appendChild(resetButton);
   }
   
-  /**
-   * Apply a texture to the selected model
-   */
+  // Apply texture to selected model
   private async applyTexture(texturePath: string): Promise<void> {
     if (!this.selectedObject) return;
     
@@ -272,9 +272,7 @@ export class SelectionManager {
     this.modelTextures.set(this.selectedObject, texturePath);
   }
   
-  /**
-   * Reset the texture of the selected model to its original
-   */
+  //reset texture to default
   private resetTexture(): void {
     if (!this.selectedObject) return;
     
