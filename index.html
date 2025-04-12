@@ -19,37 +19,46 @@
 </head>
 
 <body>
-<div id="app"></div>
-<div id="ui-container">
+  <div id="app"></div>
+  <div id="ui-container">
+    <div id="controls-panel">
+      <h3>Controls</h3>
+      <div class="control-item">
+        <span class="key">Right Click</span>
+        <span class="action">Select Model</span>
+      </div>
+      <div class="control-item">
+        <span class="key">Drag</span>
+        <span class="action">Rotate Camera</span>
+      </div>
+      <div class="control-item">
+        <span class="key">Scroll</span>
+        <span class="action">Zoom</span>
+      </div>
+    </div>
 
-  <div id="controls-panel">
-    <h3>Controls</h3>
-    <div class="control-item">
-      <span class="key">Right Click</span>
-      <span class="action">Select Model</span>
-    </div>
-    <div class="control-item">
-      <span class="key">Drag</span>
-      <span class="action">Rotate Camera</span>
-    </div>
-    <div class="control-item">
-      <span class="key">Scroll</span>
-      <span class="action">Zoom</span>
+    <div id="selection-panel">
+      <h3>Selected Model: <span id="model-name">None</span></h3>
+
+      <div class="panels-container">
+        <!-- Left side - Extension UI -->
+        <div class="left-panel">
+          <div class="slider-container">
+            <label for="x-extension-slider">X-Direction Extension</label>
+            <input type="range" min="0" max="2" value="0" step="0.01" class="slider" id="x-extension-slider">
+            <div class="slider-value">Extension: <span id="extension-value">0</span></div>
+          </div>
+        </div>
+
+        <!-- Right side - Texture UI -->
+        <div class="right-panel">
+          <div id="texture-selector" class="texture-container"></div>
+        </div>
+      </div>
     </div>
   </div>
 
-  <div id="selection-panel">
-    <h3>Selected Model: <span id="model-name">None</span></h3>
-
-      <div class="slider-container">
-        <label for="x-extension-slider">X-Direction Extension</label>
-        <input type="range" min="0" max="2" value="0" step="0.01" class="slider" id="x-extension-slider">
-        <div class="slider-value">Extension: <span id="extension-value">0</span></div>
-      </div>
-    </div>
-</div>
-
-<script type="module" src="/src/main.ts"></script>
+  <script type="module" src="/src/main.ts"></script>
 </body>
 
 </html>
